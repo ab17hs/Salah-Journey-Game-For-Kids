@@ -361,21 +361,7 @@ my-salah-journey/
 
 ### Option 1 — Local (no server required)
 
-```bash
-git clone https://github.com/<your-username>/my-salah-journey.git
-cd my-salah-journey
-# Open in browser:
-open salah-learning-game.html          # macOS
-xdg-open salah-learning-game.html     # Linux
-start salah-learning-game.html        # Windows
-```
-
-### Option 2 — GitHub Pages
-
-1. Push the repository to GitHub.
-2. Navigate to **Settings → Pages**.
-3. Set source to `main` branch, root (`/`).
-4. Visit `https://<your-username>.github.io/my-salah-journey/salah-learning-game.html`.
+Open https://salahjourney.netlify.app/ 
 
 ### Option 3 — Any static host
 
