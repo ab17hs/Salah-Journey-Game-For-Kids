@@ -2,6 +2,7 @@
 
 > An interactive, gamified Islamic prayer (Salah) learning application for young Muslim children, built as a single self-contained HTML file with no external dependencies.
 
+visit salahjourney.netlify.app to access the game
 ---
 
 ## Table of Contents
