@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>My Salah Journey 🌙</title>
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --sky1: #1a1a4e;
+  --sky2: #2d1b69;
+  --sky3: #0f3460;
+  --gold: #f7c948;
+  --gold2: #ffaa00;
+  --teal: #00d4aa;
+  --pink: #ff6b9d;
+  --purple: #8b5cf6;
+  --green: #22c55e;
+  --orange: #fb923c;
+  --white: #ffffff;
+  --cloud: rgba(255,255,255,0.15);
+  --card-bg: rgba(255,255,255,0.12);
+  --card-border: rgba(255,255,255,0.25);
+  --text-main: #ffffff;
+  --text-dim: rgba(255,255,255,0.75);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 20px;
+  --font-main: 'Nunito', 'Comic Sans MS', cursive, sans-serif;
+  --transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.light-mode {
+  --sky1: #dbeafe;
+  --sky2: #e0e7ff;
+  --sky3: #fef3c7;
+  --text-main: #1e1b4b;
+  --text-dim: #4338ca;
+  --card-bg: rgba(255,255,255,0.75);
+  --card-border: rgba(99,102,241,0.3);
+  --cloud: rgba(255,255,255,0.6);
+  --shadow: 0 8px 32px rgba(99,102,241,0.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; min-height: 100%; overflow-x: hidden; }
+body {
+  font-family: var(--font-main);
+  background: linear-gradient(160deg, var(--sky1), var(--sky2), var(--sky3));
+  color: var(--text-main);
+  min-height: 100vh;
+  position: relative;
+}
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ============================================================
+   BACKGROUND CANVAS (particles)
+   ============================================================ */
+#bgCanvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  padding-bottom: 32px;
+}
+.screen.active { display: flex; }
+
+/* ============================================================
+   HEADER BAR
+   ============================================================ */
+.top-bar {
+  width: 100%; max-width: 640px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+.icon-btn {
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer;
+  color: var(--text-main);
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.icon-btn:hover { transform: scale(1.1); }
+.icon-btn:active { transform: scale(0.92); }
+.star-counter {
+  background: linear-gradient(135deg, #f7c948, #ff922b);
+  border-radius: 24px; padding: 8px 16px;
+  font-size: 18px; font-weight: 800;
+  display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 16px rgba(247,201,72,0.4);
+  color: #fff;
+}
+
+/* ============================================================
+   PROGRESS PATH
+   ============================================================ */
+.progress-path-wrap {
+  width: 100%; max-width: 640px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(8px);
+}
+.path-label { font-size: 12px; font-weight: 700; opacity: 0.7; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.path-dots {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.path-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.4s ease;
+  position: relative;
+  cursor: default;
+}
+.path-dot.done { background: linear-gradient(135deg, var(--gold), var(--gold2)); border-color: var(--gold); color: #fff; }
+.path-dot.active { background: linear-gradient(135deg, var(--teal), #0097a7); border-color: var(--teal); color: #fff; animation: pulse-dot 1.4s infinite; }
+@keyframes pulse-dot {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); }
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.card {
+  width: 100%; max-width: 640px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 22px; font-weight: 900;
+  margin-bottom: 6px;
+  color: var(--gold);
+  display: flex; align-items: center; gap: 10px;
+}
+.card-sub { font-size: 14px; opacity: 0.75; margin-bottom: 16px; }
+
+/* ============================================================
+   MASCOT
+   ============================================================ */
+.mascot-wrap {
+  display: flex; align-items: flex-end; justify-content: center;
+  margin-bottom: 10px; gap: 16px;
+}
+.mascot {
+  font-size: 64px;
+  animation: float-mascot 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+  user-select: none;
+}
+@keyframes float-mascot {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-14px) rotate(4deg); }
+}
+.speech-bubble {
+  background: var(--white);
+  color: #1e1b4b;
+  border-radius: 18px 18px 18px 4px;
+  padding: 10px 16px;
+  font-size: 15px; font-weight: 700;
+  max-width: 200px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: bubble-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes bubble-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   TEXT DISPLAY (Learn Phase)
+   ============================================================ */
+.text-display {
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.8;
+  margin: 12px 0;
+  text-align: center;
+  min-height: 80px;
+}
+.word-highlight {
+  display: inline;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.word-highlight.lit {
+  background: var(--gold);
+  color: #1a1a4e;
+  transform: scale(1.1);
+  display: inline-block;
+}
+
+/* ============================================================
+   QUIZ TYPES
+   ============================================================ */
+/* Tap correct word */
+.word-options {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; margin-top: 14px;
+}
+.word-btn {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 16px; font-weight: 800;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-main);
+}
+.word-btn:hover { transform: scale(1.07); border-color: var(--gold); }
+.word-btn:active { transform: scale(0.94); }
+.word-btn.correct { background: linear-gradient(135deg, var(--green), #16a34a); border-color: var(--green); color: #fff; }
+.word-btn.wrong { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #ef4444; color: #fff; animation: shake 0.4s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-8px); }
+  40%,80% { transform: translateX(8px); }
+}
+
+/* Arrange words */
+.arrange-area {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+  min-height: 52px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px dashed var(--card-border);
+}
+.arrange-slot {
+  background: linear-gradient(135deg, var(--purple), #6d28d9);
+  border-radius: 10px; padding: 8px 14px;
+  font-size: 15px; font-weight: 800; color: #fff;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
+.arrange-slot:hover { transform: scale(1.07) translateY(-3px); }
+.arrange-bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px; }
+.bank-word {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 10px; padding: 8px 14px;
+  font-size: 15px; font-weight: 800; color: var(--text-main);
+  cursor: pointer; transition: var(--transition);
+  backdrop-filter: blur(4px);
+}
+.bank-word:hover { transform: scale(1.07); border-color: var(--teal); }
+.bank-word.used { opacity: 0.35; pointer-events: none; }
+
+/* Memory match */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin: 10px 0;
+}
+.mem-card {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, var(--purple), #6d28d9);
+  border-radius: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+  text-align: center; padding: 4px;
+  transition: transform 0.4s, box-shadow 0.3s;
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  user-select: none;
+  line-height: 1.3;
+}
+.mem-card.face-down { background: linear-gradient(135deg, #1e1b4b, #312e81); color: transparent; font-size: 24px; }
+.mem-card.face-down::after { content: '🌙'; color: var(--gold); font-size: 22px; }
+.mem-card.matched { background: linear-gradient(135deg, var(--green), #16a34a); pointer-events: none; }
+.mem-card.flipped { transform: rotateY(180deg); }
+.mem-card:hover:not(.matched) { transform: scale(1.05); }
+
+/* Repeat after me */
+.repeat-chunks { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.chunk-btn {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 14px; padding: 14px 18px;
+  cursor: pointer; transition: var(--transition);
+  text-align: left; backdrop-filter: blur(6px);
+  font-family: var(--font-main); color: var(--text-main);
+  width: 100%;
+}
+.chunk-btn:hover { border-color: var(--teal); transform: translateX(4px); }
+.chunk-btn.tapped { border-color: var(--gold); background: rgba(247,201,72,0.15); }
+.chunk-icon { font-size: 26px; flex-shrink: 0; }
+.chunk-text { font-size: 15px; font-weight: 700; flex: 1; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-size: 18px; font-weight: 900;
+  cursor: pointer; border: none;
+  transition: var(--transition);
+  font-family: var(--font-main);
+  display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: #1a1a4e;
+}
+.btn-primary:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 28px rgba(247,201,72,0.4); }
+.btn-primary:active { transform: scale(0.96); }
+.btn-teal {
+  background: linear-gradient(135deg, var(--teal), #0097a7);
+  color: #fff;
+}
+.btn-teal:hover { transform: translateY(-3px) scale(1.04); }
+.btn-pink {
+  background: linear-gradient(135deg, var(--pink), #e91e8c);
+  color: #fff;
+}
+.btn-pink:hover { transform: translateY(-3px) scale(1.04); }
+.btn-sm { padding: 10px 22px; font-size: 15px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+
+/* ============================================================
+   FEEDBACK OVERLAY
+   ============================================================ */
+#feedbackOverlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+#feedbackOverlay.show { display: flex; }
+.feedback-msg {
+  font-size: 42px; font-weight: 900;
+  padding: 20px 40px;
+  border-radius: 24px;
+  animation: feedback-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards,
+             feedback-out 0.4s ease 1.4s forwards;
+  box-shadow: var(--shadow);
+}
+.feedback-msg.correct-fb { background: linear-gradient(135deg, var(--green), #16a34a); color: #fff; }
+.feedback-msg.wrong-fb { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+@keyframes feedback-pop { 0% { transform: scale(0.3) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+@keyframes feedback-out { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.7) translateY(-30px); } }
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+#confettiCanvas {
+  position: fixed; inset: 0; z-index: 90;
+  pointer-events: none;
+  display: none;
+}
+
+/* ============================================================
+   STAR BURST
+   ============================================================ */
+.star-burst {
+  position: fixed; pointer-events: none; z-index: 95;
+  font-size: 32px; font-weight: 900;
+  animation: burst 0.9s ease forwards;
+}
+@keyframes burst {
+  0% { transform: scale(0.3) translateY(0); opacity: 1; }
+  60% { transform: scale(1.3) translateY(-60px); opacity: 1; }
+  100% { transform: scale(0.8) translateY(-120px); opacity: 0; }
+}
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+#homeScreen {
+  justify-content: center;
+  text-align: center;
+}
+.home-title {
+  font-size: 42px; font-weight: 900;
+  line-height: 1.2; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--gold), #fff, var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.home-subtitle { font-size: 18px; opacity: 0.85; margin-bottom: 28px; }
+.home-mascot { font-size: 100px; margin-bottom: 16px; animation: float-mascot 3s ease-in-out infinite; }
+.home-masjid {
+  width: 100%; max-width: 360px;
+  margin: 0 auto 20px;
+  opacity: 0.18;
+  position: relative;
+}
+
+/* Masjid SVG silhouette */
+.masjid-svg { width: 100%; }
+
+/* Stars earned display */
+.hero-stars {
+  display: flex; gap: 8px; justify-content: center;
+  margin-bottom: 20px;
+}
+.hero-star { font-size: 28px; transition: all 0.3s; }
+.hero-star.earned { animation: star-pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes star-pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+/* ============================================================
+   STAGE / GAME SCREEN
+   ============================================================ */
+.stage-header {
+  font-size: 13px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 2px; opacity: 0.7; margin-bottom: 4px;
+}
+.phase-indicator {
+  display: flex; gap: 6px; margin: 10px 0;
+}
+.phase-pip {
+  height: 6px; flex: 1; border-radius: 10px;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.5s;
+}
+.phase-pip.active { background: var(--teal); }
+.phase-pip.done { background: var(--gold); }
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge-row {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+}
+.badge {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  text-align: center; min-width: 80px;
+  backdrop-filter: blur(6px);
+  transition: var(--transition);
+}
+.badge.earned { border-color: var(--gold); background: rgba(247,201,72,0.2); }
+.badge-icon { font-size: 32px; }
+.badge-name { font-size: 11px; font-weight: 800; margin-top: 4px; opacity: 0.8; }
+
+/* ============================================================
+   FINAL SCREEN
+   ============================================================ */
+.trophy-anim {
+  font-size: 100px;
+  animation: trophy-bounce 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes trophy-bounce {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.certificate {
+  background: linear-gradient(135deg, rgba(247,201,72,0.2), rgba(255,255,255,0.1));
+  border: 3px solid var(--gold);
+  border-radius: 24px; padding: 28px 24px;
+  text-align: center; margin: 16px 0;
+  position: relative; overflow: hidden;
+}
+.certificate::before {
+  content: '✦ ✦ ✦';
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  font-size: 18px; color: var(--gold); opacity: 0.6;
+}
+.cert-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; opacity: 0.7; }
+.cert-hero { font-size: 32px; font-weight: 900; color: var(--gold); margin: 8px 0; }
+.cert-name { font-size: 26px; font-weight: 900; background: linear-gradient(135deg,var(--gold),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.cert-stars { font-size: 24px; letter-spacing: 4px; margin: 8px 0; }
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+  .certificate {
+    border: 3px solid #f7c948 !important;
+    color: #000 !important;
+  }
+  #bgCanvas, #confettiCanvas { display: none !important; }
+}
+
+/* ============================================================
+   DARK/LIGHT TOGGLE
+   ============================================================ */
+
+/* ============================================================
+   PARENT MODE
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: linear-gradient(160deg, #1a1a4e, #2d1b69);
+  border: 2px solid var(--card-border);
+  border-radius: 24px; padding: 28px;
+  max-width: 480px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.modal-title { font-size: 22px; font-weight: 900; margin-bottom: 16px; color: var(--gold); }
+.modal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 700; }
+.modal-row:last-child { border-bottom: none; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 380px) {
+  .home-title { font-size: 32px; }
+  .mascot { font-size: 54px; }
+  .text-display { font-size: 16px; }
+  .memory-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .mem-card { font-size: 9px; }
+}
+
+/* ============================================================
+   ANIMATIONS MISC
+   ============================================================ */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes tada {
+  0%,100% { transform: scale(1) rotate(0); }
+  10%,90% { transform: scale(0.9) rotate(-3deg); }
+  20%,80% { transform: scale(1.3) rotate(3deg); }
+  30%,50%,70% { transform: scale(1.3) rotate(-3deg); }
+  40%,60% { transform: scale(1.3) rotate(3deg); }
+}
+.tada { animation: tada 0.9s ease; }
+
+.fly-in {
+  animation: fly-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes fly-in {
+  0% { transform: translateY(30px) scale(0.8); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND CANVAS -->
+<canvas id="bgCanvas"></canvas>
+<!-- CONFETTI CANVAS -->
+<canvas id="confettiCanvas"></canvas>
+
+<!-- FEEDBACK OVERLAY -->
+<div id="feedbackOverlay">
+  <div class="feedback-msg" id="feedbackMsg"></div>
+</div>
+
+<!-- PARENT MODE MODAL -->
+<div class="modal-overlay" id="parentModal">
+  <div class="modal-box">
+    <div class="modal-title">👨‍👩‍👧 Parent Corner</div>
+    <div class="modal-row"><span>Total Stars ⭐</span><span id="pm-stars">0</span></div>
+    <div class="modal-row"><span>Stages Done ✅</span><span id="pm-stages">0 / 14</span></div>
+    <div class="modal-row"><span>Badges Earned 🏅</span><span id="pm-badges">0</span></div>
+    <div class="modal-row">
+      <span>Reset Progress</span>
+      <button class="btn btn-pink btn-sm" onclick="confirmReset()">Reset</button>
+    </div>
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn btn-primary" onclick="closeParentModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOME SCREEN
+     ============================================================ -->
+<div class="screen active" id="homeScreen">
+  <div style="width:100%;max-width:640px;text-align:center">
+
+    <!-- Masjid silhouette decoration -->
+    <svg class="masjid-svg" viewBox="0 0 400 120" style="opacity:0.2;margin-bottom:-20px">
+      <ellipse cx="200" cy="65" rx="18" ry="22" fill="#f7c948"/>
+      <rect x="182" y="65" width="36" height="55" fill="#f7c948"/>
+      <rect x="80" y="85" width="240" height="35" fill="#f7c948"/>
+      <rect x="50" y="100" width="300" height="20" fill="#f7c948"/>
+      <rect x="155" y="88" width="16" height="32" fill="#1a1a4e"/>
+      <rect x="229" y="88" width="16" height="32" fill="#1a1a4e"/>
+      <rect x="30" y="75" width="10" height="45" fill="#f7c948"/>
+      <rect x="360" y="75" width="10" height="45" fill="#f7c948"/>
+      <ellipse cx="35" cy="72" rx="7" ry="9" fill="#f7c948"/>
+      <ellipse cx="365" cy="72" rx="7" ry="9" fill="#f7c948"/>
+    </svg>
+
+    <div class="home-mascot">🪔</div>
+    <div class="home-title">My Salah Journey</div>
+    <div class="home-subtitle">Learn your prayer with Lumee the Lantern! ✨</div>
+
+    <div class="hero-stars" id="heroStars">
+      <span class="hero-star">⭐</span><span class="hero-star">⭐</span>
+      <span class="hero-star">⭐</span><span class="hero-star">⭐</span>
+      <span class="hero-star">⭐</span>
+    </div>
+
+    <div style="font-size:15px;opacity:0.8;margin-bottom:22px" id="savedMsg">Ready to start? 🌟</div>
+
+    <div class="btn-row" style="margin-bottom:14px">
+      <button class="btn btn-primary" onclick="startGame()">▶ Start Journey!</button>
+      <button class="btn btn-teal" id="continueBtn" onclick="continueGame()" style="display:none">▶ Continue</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-sm" style="background:var(--card-bg);border:1.5px solid var(--card-border);color:var(--text-main);backdrop-filter:blur(6px)" onclick="openParentModal()">👨‍👩‍👧 Parent Mode</button>
+      <button class="btn btn-sm" style="background:var(--card-bg);border:1.5px solid var(--card-border);color:var(--text-main);backdrop-filter:blur(6px)" onclick="toggleSound()" id="soundBtn">🔊 Sound On</button>
+      <button class="btn btn-sm" style="background:var(--card-bg);border:1.5px solid var(--card-border);color:var(--text-main);backdrop-filter:blur(6px)" onclick="toggleDark()" id="darkBtn">🌙 Night</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     GAME SCREEN
+     ============================================================ -->
+<div class="screen" id="gameScreen">
+  <div class="top-bar">
+    <button class="icon-btn" onclick="goHome()" title="Home">🏠</button>
+    <div class="star-counter">⭐ <span id="starCount">0</span></div>
+    <button class="icon-btn" onclick="toggleSound()" id="soundBtn2">🔊</button>
+    <button class="icon-btn" onclick="toggleDark()">🌙</button>
+  </div>
+
+  <!-- Progress path -->
+  <div class="progress-path-wrap">
+    <div class="path-label">Salah Journey</div>
+    <div class="path-dots" id="pathDots"></div>
+  </div>
+
+  <!-- Mascot -->
+  <div class="mascot-wrap">
+    <div class="mascot" id="mascot">🪔</div>
+    <div class="speech-bubble" id="speechBubble">Let's learn together! 🌟</div>
+  </div>
+
+  <!-- Main card -->
+  <div class="card" id="mainCard">
+    <div class="stage-header" id="stageHeader">Stage 1</div>
+    <div class="card-title" id="cardTitle">Takbeer</div>
+    <div class="card-sub" id="cardSub">Say this before you begin</div>
+
+    <!-- Phase pips -->
+    <div class="phase-indicator" id="phaseIndicator"></div>
+
+    <!-- Content area (swapped per phase) -->
+    <div id="contentArea"></div>
+
+    <!-- Action buttons -->
+    <div class="btn-row" id="actionBtns" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FINAL SCREEN
+     ============================================================ -->
+<div class="screen" id="finalScreen">
+  <div style="width:100%;max-width:580px;text-align:center;padding:10px">
+    <div class="trophy-anim" id="trophyAnim" style="display:none">🏆</div>
+    <div style="font-size:32px;font-weight:900;margin:12px 0;background:linear-gradient(135deg,var(--gold),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+      You Completed Your Salah Journey!
+    </div>
+    <div style="font-size:18px;opacity:0.85;margin-bottom:20px">MashaAllah! You are a true Prayer Hero! 🌙✨</div>
+
+    <div class="certificate" id="certificate">
+      <div class="cert-title">Certificate of Achievement</div>
+      <div style="font-size:36px;margin:8px 0">🏆 🌙 ⭐</div>
+      <div class="cert-hero">PRAYER HERO</div>
+      <div style="font-size:14px;opacity:0.7;margin:4px 0">This is awarded to our amazing student who completed</div>
+      <div class="cert-name">My Complete Salah</div>
+      <div class="cert-stars" id="certStars">⭐⭐⭐⭐⭐</div>
+      <div style="font-size:13px;opacity:0.7">Total Stars Earned: <span id="finalStarCount" style="font-weight:900;color:var(--gold)">0</span></div>
+      <div style="font-size:11px;opacity:0.5;margin-top:8px">✦ Keep praying, keep shining ✦</div>
+    </div>
+
+    <!-- Badges earned -->
+    <div class="card" style="text-align:left">
+      <div class="card-title">🏅 Badges Earned</div>
+      <div class="badge-row" id="finalBadgeRow"></div>
+    </div>
+
+    <div class="btn-row no-print">
+      <button class="btn btn-primary" onclick="startGame()">🔄 Start Again</button>
+      <button class="btn btn-teal" onclick="printCert()">🖨️ Print Certificate</button>
+      <button class="btn btn-pink btn-sm" onclick="goHome()">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   GAME DATA - All 14 Salah stages
+   ============================================================ */
+const STAGES = [
+  {
+    id: 0, emoji: '🤲', name: 'Takbeer',
+    sub: 'Raise your hands and say:',
+    text: 'Allahu Akbar',
+    badge: { icon: '🌟', name: 'Starter Star' }
+  },
+  {
+    id: 1, emoji: '🙏', name: 'Thana',
+    sub: 'Praise Allah quietly in your heart:',
+    text: "Subhanaka Allahumma wa bihamdika, wa tabarakasmuka, wa ta'ala jadduka, wa la ilaha ghairuk.",
+    badge: { icon: '🌺', name: 'Thana Star' }
+  },
+  {
+    id: 2, emoji: '🛡️', name: "Ta'awudh & Tasmiyah",
+    sub: 'Ask Allah for protection and begin:',
+    text: "A'udhu billahi minash-shaytanir-rajim Bismillahir-Rahmanir-Rahim",
+    badge: { icon: '🛡️', name: 'Shield Star' }
+  },
+  {
+    id: 3, emoji: '📖', name: 'Surah Fatiha',
+    sub: 'Recite the opening surah:',
+    text: "Alhamdu lillahi rabbil 'alamin Ar-Rahmanir-Rahim Maliki yawmid-din Iyyaka na'budu wa iyyaka nasta'in Ihdinas-siratal mustaqim Siratal-ladhina an'amta 'alayhim Ghairil-maghdubi 'alayhim walad-dallin",
+    badge: { icon: '📖', name: 'Fatiha Hero' }
+  },
+  {
+    id: 4, emoji: '💎', name: 'Surah Ikhlas',
+    sub: 'Recite Surah Ikhlas:',
+    text: "Qul huwallahu ahad Allahus-samad Lam yalid wa lam yulad Wa lam yakun lahu kufuwan ahad",
+    badge: { icon: '💎', name: 'Ikhlas Gem' }
+  },
+  {
+    id: 5, emoji: '⬇️', name: 'Ruku',
+    sub: 'Bow down and say 3 times:',
+    text: "Subhana Rabbiyal 'Azim",
+    badge: { icon: '⬇️', name: 'Ruku Champ' }
+  },
+  {
+    id: 6, emoji: '⬆️', name: 'Qawma',
+    sub: 'Stand back up and say:',
+    text: "Sami'allahu liman hamidah Rabbana lakal hamd",
+    badge: { icon: '⬆️', name: 'Standing Star' }
+  },
+  {
+    id: 7, emoji: '🌿', name: 'Sajdah',
+    sub: 'Prostrate and say 3 times:',
+    text: "Subhana Rabbiyal A'la",
+    badge: { icon: '🌿', name: 'Sajdah Star' }
+  },
+  {
+    id: 8, emoji: '🪑', name: 'Between Sajdahs',
+    sub: 'Sit briefly and say:',
+    text: "Rabbighfir li",
+    badge: { icon: '🙏', name: 'Forgiveness Star' }
+  },
+  {
+    id: 9, emoji: '🌿', name: 'Sajdah Again',
+    sub: 'Prostrate again and say 3 times:',
+    text: "Subhana Rabbiyal A'la",
+    badge: { icon: '✨', name: 'Double Sajdah' }
+  },
+  {
+    id: 10, emoji: '🪑', name: 'Tashahhud',
+    sub: 'Sit and recite:',
+    text: "Attahiyyatu lillahi was-salawatu wat-tayyibat As-salamu 'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh As-salamu 'alayna wa 'ala 'ibadillahis-salihin Ashhadu an la ilaha illallah Wa ashhadu anna Muhammadan 'abduhu wa rasuluh",
+    badge: { icon: '💫', name: 'Tashahhud Pro' }
+  },
+  {
+    id: 11, emoji: '❤️', name: 'Durood',
+    sub: 'Send blessings on the Prophet:',
+    text: "Allahumma salli 'ala Muhammadin wa 'ala ali Muhammad Kama sallayta 'ala Ibrahima wa 'ala ali Ibrahim Innaka Hamidum-Majid Allahumma barik 'ala Muhammadin wa 'ala ali Muhammad Kama barakta 'ala Ibrahima wa 'ala ali Ibrahim Innaka Hamidum-Majid",
+    badge: { icon: '❤️', name: 'Durood Heart' }
+  },
+  {
+    id: 12, emoji: '🌈', name: 'Dua After Durood',
+    sub: 'Make this beautiful dua:',
+    text: "Rabbana atina fid-dunya hasanah wa fil-akhirati hasanah wa qina 'adhaban-nar",
+    badge: { icon: '🌈', name: 'Dua Rainbow' }
+  },
+  {
+    id: 13, emoji: '👋', name: 'Salam',
+    sub: 'End your prayer with peace:',
+    text: "As-salamu 'alaykum wa rahmatullah",
+    badge: { icon: '👋', name: 'Salam Champ' }
+  }
+];
+
+/* Quiz types cycling - per stage alternates between different quiz types */
+// phase 1 = repeat-after-me, phase 2 alternates: tap/arrange/memory
+
+/* Encouraging messages */
+const CORRECT_MSGS = ['Amazing! 🌟', 'MashaAllah! ✨', 'Great job! 🎉', 'You did it! 🌙', 'Awesome! ⭐', 'Brilliant! 💫', 'Keep going! 🚀', 'Wonderful! 🌺'];
+const WRONG_MSGS   = ['Try again! 😊', 'Almost! 💪', 'You can do it! 🌟', "Don't give up! 🤗"];
+const MASCOTS = ['🪔','🌙','⭐','🌟','🕌','🌸','✨','💫'];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  currentStage: 0,
+  currentPhase: 0,  // 0=learn, 1=quiz1, 2=quiz2
+  stars: 0,
+  badges: [],
+  completedStages: [],
+  soundOn: true,
+  darkMode: false,
+  playerName: 'Little Star'
+};
+
+function saveState() { try { localStorage.setItem('salahGame', JSON.stringify(state)); } catch(e){} }
+function loadState() {
+  try {
+    const s = localStorage.getItem('salahGame');
+    if (s) { state = { ...state, ...JSON.parse(s) }; }
+  } catch(e){}
+}
+
+/* ============================================================
+   AUDIO ENGINE (Web Audio API)
+   ============================================================ */
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, type, dur, vol=0.3, delay=0) {
+  if (!state.soundOn) return;
+  try {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type;
+    o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+    g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+    o.start(ctx.currentTime + delay);
+    o.stop(ctx.currentTime + delay + dur + 0.05);
+  } catch(e){}
+}
+
+function playCorrectSound() {
+  playTone(523, 'sine', 0.15, 0.3);
+  playTone(659, 'sine', 0.15, 0.3, 0.15);
+  playTone(784, 'sine', 0.25, 0.3, 0.3);
+}
+
+function playWrongSound() {
+  playTone(300, 'sawtooth', 0.2, 0.2);
+  playTone(250, 'sawtooth', 0.2, 0.2, 0.2);
+}
+
+function playCelebrationSound() {
+  const notes = [523,587,659,698,784,880,988,1047];
+  notes.forEach((n,i) => playTone(n,'sine',0.3,0.35,i*0.1));
+}
+
+function playStarSound() {
+  playTone(880,'sine',0.1,0.25);
+  playTone(1100,'sine',0.1,0.25,0.12);
+}
+
+/* ============================================================
+   BACKGROUND PARTICLES
+   ============================================================ */
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+let particles = [];
+
+function resizeBg() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+
+function initParticles() {
+  particles = [];
+  const count = Math.min(60, Math.floor(window.innerWidth / 14));
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * bgCanvas.width,
+      y: Math.random() * bgCanvas.height,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: -Math.random() * 0.5 - 0.2,
+      alpha: Math.random() * 0.6 + 0.2,
+      symbol: Math.random() > 0.6 ? '★' : '·',
+      size: Math.random() * 10 + 6
+    });
+  }
+}
+
+function drawBg() {
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  particles.forEach(p => {
+    bgCtx.save();
+    bgCtx.globalAlpha = p.alpha;
+    bgCtx.fillStyle = '#f7c948';
+    bgCtx.font = `${p.size}px serif`;
+    bgCtx.fillText(p.symbol, p.x, p.y);
+    bgCtx.restore();
+    p.x += p.dx; p.y += p.dy;
+    if (p.y < -20) { p.y = bgCanvas.height + 10; p.x = Math.random() * bgCanvas.width; }
+    if (p.x < -10) p.x = bgCanvas.width + 10;
+    if (p.x > bgCanvas.width + 10) p.x = -10;
+  });
+  requestAnimationFrame(drawBg);
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+const confCanvas = document.getElementById('confettiCanvas');
+const confCtx = confCanvas.getContext('2d');
+let confetti = [], confettiRunning = false;
+
+function startConfetti(dur=4000) {
+  confCanvas.width = window.innerWidth;
+  confCanvas.height = window.innerHeight;
+  confCanvas.style.display = 'block';
+  confetti = [];
+  for (let i = 0; i < 160; i++) {
+    confetti.push({
+      x: Math.random() * confCanvas.width,
+      y: -20 - Math.random() * 200,
+      w: 6 + Math.random() * 8,
+      h: 10 + Math.random() * 6,
+      color: ['#f7c948','#00d4aa','#ff6b9d','#8b5cf6','#fb923c','#22c55e','#ffffff'][Math.floor(Math.random()*7)],
+      dx: (Math.random()-0.5)*3,
+      dy: 2 + Math.random()*4,
+      rot: Math.random()*360,
+      drot: (Math.random()-0.5)*8
+    });
+  }
+  confettiRunning = true;
+  drawConfetti();
+  setTimeout(() => { confettiRunning = false; confCanvas.style.display='none'; }, dur);
+}
+
+function drawConfetti() {
+  if (!confettiRunning) return;
+  confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+  confetti.forEach(c => {
+    confCtx.save();
+    confCtx.translate(c.x + c.w/2, c.y + c.h/2);
+    confCtx.rotate(c.rot * Math.PI/180);
+    confCtx.fillStyle = c.color;
+    confCtx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+    confCtx.restore();
+    c.x += c.dx; c.y += c.dy; c.rot += c.drot;
+    if (c.y > confCanvas.height + 20) {
+      c.y = -20; c.x = Math.random() * confCanvas.width;
+    }
+  });
+  requestAnimationFrame(drawConfetti);
+}
+
+/* ============================================================
+   STAR BURST EFFECT
+   ============================================================ */
+function showStarBurst(x, y) {
+  const el = document.createElement('div');
+  el.className = 'star-burst';
+  el.textContent = '+⭐';
+  el.style.left = (x-20)+'px';
+  el.style.top = (y-20)+'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+/* ============================================================
+   FEEDBACK
+   ============================================================ */
+function showFeedback(type, msg) {
+  const overlay = document.getElementById('feedbackOverlay');
+  const el = document.getElementById('feedbackMsg');
+  el.textContent = msg;
+  el.className = 'feedback-msg ' + (type==='correct' ? 'correct-fb' : 'wrong-fb');
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 2000);
+}
+
+function randFrom(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ============================================================
+   MASCOT SPEECH
+   ============================================================ */
+function setSpeech(msg) {
+  const el = document.getElementById('speechBubble');
+  el.textContent = msg;
+  el.style.animation = 'none';
+  requestAnimationFrame(() => { el.style.animation = 'bubble-pop 0.4s cubic-bezier(0.34,1.56,0.64,1)'; });
+}
+
+function rotateMascot() {
+  const el = document.getElementById('mascot');
+  el.textContent = MASCOTS[state.currentStage % MASCOTS.length];
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() { showScreen('homeScreen'); updateHomeScreen(); }
+
+function updateHomeScreen() {
+  const hs = document.getElementById('heroStars');
+  const totalPossible = STAGES.length * 3;
+  const pct = state.stars / totalPossible;
+  hs.innerHTML = '';
+  for (let i=0;i<5;i++) {
+    const s = document.createElement('span');
+    s.className = 'hero-star' + (i < Math.ceil(pct*5) ? ' earned' : '');
+    s.textContent = i < Math.ceil(pct*5) ? '⭐' : '☆';
+    s.style.animationDelay = (i*0.1)+'s';
+    hs.appendChild(s);
+  }
+  document.getElementById('savedMsg').textContent =
+    state.completedStages.length > 0
+      ? `✅ ${state.completedStages.length} of ${STAGES.length} stages done · ⭐ ${state.stars} stars`
+      : 'Ready to start? 🌟';
+  document.getElementById('continueBtn').style.display =
+    state.completedStages.length > 0 && state.completedStages.length < STAGES.length ? 'inline-flex' : 'none';
+}
+
+function startGame() {
+  state.currentStage = 0;
+  state.currentPhase = 0;
+  state.stars = 0;
+  state.badges = [];
+  state.completedStages = [];
+  saveState();
+  showScreen('gameScreen');
+  renderStage();
+}
+
+function continueGame() {
+  state.currentStage = state.completedStages.length;
+  state.currentPhase = 0;
+  showScreen('gameScreen');
+  renderStage();
+}
+
+/* ============================================================
+   PROGRESS PATH
+   ============================================================ */
+function renderPath() {
+  const container = document.getElementById('pathDots');
+  container.innerHTML = '';
+  STAGES.forEach((st, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'path-dot' +
+      (state.completedStages.includes(i) ? ' done' : '') +
+      (i === state.currentStage ? ' active' : '');
+    dot.textContent = state.completedStages.includes(i) ? '✓' : (i+1);
+    dot.title = st.name;
+    container.appendChild(dot);
+  });
+}
+
+/* ============================================================
+   PHASE PIPS
+   ============================================================ */
+function renderPhasePips() {
+  const cont = document.getElementById('phaseIndicator');
+  cont.innerHTML = '';
+  const phases = ['Learn','Quiz 1','Quiz 2'];
+  phases.forEach((_, i) => {
+    const pip = document.createElement('div');
+    pip.className = 'phase-pip' +
+      (i < state.currentPhase ? ' done' : '') +
+      (i === state.currentPhase ? ' active' : '');
+    cont.appendChild(pip);
+  });
+}
+
+/* ============================================================
+   MAIN RENDER
+   ============================================================ */
+function renderStage() {
+  if (state.currentStage >= STAGES.length) { showFinalScreen(); return; }
+  const stage = STAGES[state.currentStage];
+  document.getElementById('stageHeader').textContent = `Stage ${state.currentStage+1} of ${STAGES.length}`;
+  document.getElementById('cardTitle').textContent = stage.emoji + ' ' + stage.name;
+  document.getElementById('cardSub').textContent = stage.sub;
+  document.getElementById('starCount').textContent = state.stars;
+  rotateMascot();
+  renderPath();
+  renderPhasePips();
+
+  const phases = [renderLearnPhase, renderQuizPhase1, renderQuizPhase2];
+  const phaseIdx = Math.min(state.currentPhase, phases.length-1);
+  phases[phaseIdx](stage);
+
+  // Animate card
+  const card = document.getElementById('mainCard');
+  card.style.animation = 'none';
+  requestAnimationFrame(() => { card.style.animation = 'fly-in 0.4s ease both'; });
+}
+
+/* ============================================================
+   PHASE 0 – LEARN
+   ============================================================ */
+function renderLearnPhase(stage) {
+  setSpeech(`Let's learn "${stage.name}"! 📚`);
+  const words = stage.text.split(' ');
+  let html = `<div class="text-display" id="learnText">`;
+  words.forEach((w,i) => {
+    html += `<span class="word-highlight" id="wh${i}">${w} </span>`;
+  });
+  html += `</div>`;
+  html += `<div style="text-align:center;opacity:0.7;font-size:14px;margin-top:8px">👆 Watch each word light up!</div>`;
+  document.getElementById('contentArea').innerHTML = html;
+  document.getElementById('actionBtns').innerHTML = `
+    <button class="btn btn-primary" id="learnNextBtn" onclick="advancePhase()" style="opacity:0.4;pointer-events:none">
+      I'm Ready! ➡️
+    </button>`;
+  highlightWords(words, 0);
+}
+
+function highlightWords(words, idx) {
+  if (idx > 0) {
+    const prev = document.getElementById('wh'+(idx-1));
+    if (prev) prev.classList.remove('lit');
+  }
+  if (idx >= words.length) {
+    // done highlighting
+    setSpeech("Great listening! Now let's practice! 💪");
+    const btn = document.getElementById('learnNextBtn');
+    if (btn) { btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
+    return;
+  }
+  const el = document.getElementById('wh'+idx);
+  if (el) el.classList.add('lit');
+  const delay = Math.max(300, Math.min(800, 5000 / words.length));
+  setTimeout(() => highlightWords(words, idx+1), delay);
+}
+
+/* ============================================================
+   PHASE 1 – QUIZ: REPEAT AFTER ME
+   ============================================================ */
+function renderQuizPhase1(stage) {
+  setSpeech("Tap each part to say it! 👂");
+  const lines = stage.text.match(/[^.!?]+[.!?]*/g) || stage.text.split(/(?<=\s{2})|(?=\s{2})/);
+  // Split into meaningful chunks (by spaces in long texts, or natural breaks)
+  const chunks = splitIntoChunks(stage.text, 5);
+
+  let html = `<div style="font-size:14px;font-weight:700;opacity:0.75;margin-bottom:10px;text-align:center">
+    Tap each part to practice repeating it! 🌟</div>`;
+  html += `<div class="repeat-chunks" id="repeatChunks">`;
+  chunks.forEach((c, i) => {
+    html += `<button class="chunk-btn" data-idx="${i}" onclick="tapChunk(this)">
+      <span class="chunk-icon">🔊</span>
+      <span class="chunk-text">${c}</span>
+    </button>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('contentArea').innerHTML = html;
+  document.getElementById('actionBtns').innerHTML = `
+    <button class="btn btn-primary" id="repeatNextBtn" onclick="advancePhase()" style="opacity:0.4;pointer-events:auto">
+      Next Quiz ➡️
+    </button>`;
+  // Allow skipping repeat phase
+  setTimeout(() => {
+    const btn = document.getElementById('repeatNextBtn');
+    if(btn) { btn.style.opacity='1'; }
+  }, 500);
+}
+
+let tappedChunks = new Set();
+function tapChunk(btn) {
+  const idx = btn.dataset.idx;
+  btn.classList.add('tapped');
+  btn.querySelector('.chunk-icon').textContent = '✅';
+  tappedChunks.add(idx);
+  playCorrectSound();
+  setSpeech(randFrom(["Say it out loud! 📢", "Repeat after me! 🗣️", "MashaAllah! ✨", "Good practice! 💪"]));
+}
+
+function splitIntoChunks(text, maxWords) {
+  const words = text.split(' ');
+  const chunks = [];
+  for (let i = 0; i < words.length; i += maxWords) {
+    chunks.push(words.slice(i, i + maxWords).join(' '));
+  }
+  return chunks;
+}
+
+
+
+/* ============================================================
+   PHASE 2 – ROTATING QUIZ (tap / arrange / memory)
+   ============================================================ */
+function renderQuizPhase2(stage) {
+  const quizType = state.currentStage % 3; // 0=tap, 1=arrange, 2=memory
+  if (quizType === 0) renderTapQuiz(stage);
+  else if (quizType === 1) renderArrangeQuiz(stage);
+  else renderMemoryQuiz(stage);
+}
+
+/* --- TAP CORRECT WORD --- */
+function renderTapQuiz(stage) {
+  setSpeech("Tap the RIGHT word! 🎯");
+  const words = stage.text.replace(/[',]/g,'').split(' ').filter(w => w.length > 2);
+  const uniqueWords = [...new Set(words)];
+  const targetWord = uniqueWords[Math.floor(Math.random() * Math.min(uniqueWords.length, 8))];
+
+  const wrongPool = [];
+  STAGES.forEach(s => {
+    s.text.split(' ').forEach(w => {
+      const c = w.replace(/[',]/g,'');
+      if (c.length > 2 && c.toLowerCase() !== targetWord.toLowerCase()) wrongPool.push(c);
+    });
+  });
+  shuffleArr(wrongPool);
+  const options = [targetWord, ...wrongPool.filter((w,i,a)=>a.indexOf(w)===i).slice(0,3)];
+  shuffleArr(options);
+
+  const highlighted = stage.text.replace(
+    new RegExp(`(${escapeRegex(targetWord)})`, 'i'),
+    '<span style="background:rgba(247,201,72,0.35);border-radius:6px;padding:2px 8px;border:2px dashed var(--gold);font-weight:900"> ___ </span>'
+  );
+
+  document.getElementById('contentArea').innerHTML = `
+    <div class="text-display" style="font-size:15px;line-height:2">${highlighted}</div>
+    <div style="font-size:14px;font-weight:700;opacity:0.75;text-align:center;margin:10px 0">Which word fills the blank? 🤔</div>
+    <div class="word-options" id="wordOpts">
+      ${options.map(opt=>`<button class="word-btn" onclick="checkWordAnswer(this,'${opt}','${targetWord}')">${opt}</button>`).join('')}
+    </div>`;
+  document.getElementById('actionBtns').innerHTML = '';
+  quizAnswered = false;
+}
+
+let quizAnswered = false;
+function checkWordAnswer(btn, chosen, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const allBtns = document.querySelectorAll('.word-btn');
+  allBtns.forEach(b => b.style.pointerEvents = 'none');
+  if (chosen.toLowerCase() === correct.toLowerCase()) {
+    btn.classList.add('correct');
+    playCorrectSound(); awardStars(1);
+    showFeedback('correct', randFrom(CORRECT_MSGS));
+    setSpeech(randFrom(['You got it! 🎯','MashaAllah! ✨','Brilliant! 💫']));
+    const r = btn.getBoundingClientRect();
+    showStarBurst(r.left + r.width/2, r.top);
+    setTimeout(() => advancePhase(), 1800);
+  } else {
+    btn.classList.add('wrong'); playWrongSound();
+    showFeedback('wrong', randFrom(WRONG_MSGS));
+    setSpeech("Almost! Try again! 💪");
+    allBtns.forEach(b => { if(b.textContent.trim().toLowerCase()===correct.toLowerCase()) b.classList.add('correct'); });
+    setTimeout(() => {
+      quizAnswered = false;
+      allBtns.forEach(b => { b.classList.remove('correct','wrong'); b.style.pointerEvents='auto'; });
+    }, 2000);
+  }
+}
+
+/* --- ARRANGE WORDS --- */
+let arrangeAnswer = [], arrangeTarget = [];
+function renderArrangeQuiz(stage) {
+  setSpeech("Put the words in order! 🔢");
+  // Take first 5-7 words
+  const allWords = stage.text.split(' ').filter(w=>w.trim());
+  const slice = allWords.slice(0, Math.min(7, allWords.length));
+  arrangeTarget = [...slice];
+  arrangeAnswer = [];
+  const shuffled = shuffleArr([...slice]);
+
+  document.getElementById('contentArea').innerHTML = `
+    <div style="font-size:14px;font-weight:700;opacity:0.75;text-align:center;margin-bottom:8px">Arrange the words in the right order! ✨</div>
+    <div style="font-size:12px;opacity:0.6;text-align:center;margin-bottom:8px">Tap a word to place it, tap placed word to remove</div>
+    <div class="arrange-area" id="arrangeZone"></div>
+    <div class="arrange-bank" id="arrangeBank">
+      ${shuffled.map((w,i)=>`<button class="bank-word" id="bw${i}" onclick="pickBankWord('${escapeQuote(w)}',${i})">${w}</button>`).join('')}
+    </div>`;
+  document.getElementById('actionBtns').innerHTML = `
+    <button class="btn btn-primary btn-sm" onclick="checkArrange()">Check! ✅</button>
+    <button class="btn btn-sm" style="background:var(--card-bg);border:1.5px solid var(--card-border);color:var(--text-main)" onclick="clearArrange()">Clear 🔄</button>`;
+}
+
+function escapeQuote(s) { return s.replace(/'/g,"\\'"); }
+
+function pickBankWord(word, idx) {
+  const btn = document.getElementById('bw'+idx);
+  if (btn && btn.classList.contains('used')) return;
+  arrangeAnswer.push({ word, idx });
+  if (btn) btn.classList.add('used');
+
+  const zone = document.getElementById('arrangeZone');
+  const slot = document.createElement('div');
+  slot.className = 'arrange-slot';
+  slot.textContent = word;
+  slot.dataset.bankIdx = idx;
+  slot.onclick = function() {
+    // Remove from answer
+    arrangeAnswer = arrangeAnswer.filter(a => a.idx !== parseInt(this.dataset.bankIdx));
+    const bw = document.getElementById('bw'+this.dataset.bankIdx);
+    if (bw) bw.classList.remove('used');
+    this.remove();
+  };
+  zone.appendChild(slot);
+}
+
+function clearArrange() {
+  arrangeAnswer = [];
+  document.querySelectorAll('.bank-word').forEach(b => b.classList.remove('used'));
+  document.getElementById('arrangeZone').innerHTML = '';
+}
+
+function checkArrange() {
+  const userWords = arrangeAnswer.map(a => a.word.replace(/[',]/g,'').toLowerCase());
+  const targetWords = arrangeTarget.map(w => w.replace(/[',]/g,'').toLowerCase());
+  if (userWords.length < targetWords.length) {
+    setSpeech("Place all the words first! 🌟"); return;
+  }
+  let correct = true;
+  for (let i=0;i<targetWords.length;i++) {
+    if (userWords[i] !== targetWords[i]) { correct = false; break; }
+  }
+  if (correct) {
+    playCorrectSound(); awardStars(1);
+    showFeedback('correct', randFrom(CORRECT_MSGS));
+    setSpeech("Perfect order! MashaAllah! 🌟");
+    document.querySelectorAll('.arrange-slot').forEach(s => s.style.background = 'linear-gradient(135deg,var(--green),#16a34a)');
+    setTimeout(() => advancePhase(), 1800);
+  } else {
+    playWrongSound();
+    showFeedback('wrong', randFrom(WRONG_MSGS));
+    setSpeech("Not quite right! Try again! 💪");
+    document.querySelectorAll('.arrange-slot').forEach(s => s.style.animation = 'shake 0.4s');
+    setTimeout(() => {
+      document.querySelectorAll('.arrange-slot').forEach(s => s.style.animation = '');
+    }, 500);
+  }
+}
+
+/* --- MEMORY MATCH --- */
+let memFlipped = [], memMatched = 0, memLocked = false, memPairs = [];
+function renderMemoryQuiz(stage) {
+  setSpeech("Match the pairs! 🧠");
+  // Create 4 pairs from first 4 chunks of the text
+  const words = stage.text.split(' ').filter(w=>w.trim());
+  const chunks = [];
+  for (let i=0;i<words.length;i+=3) chunks.push(words.slice(i,i+3).join(' '));
+  const usedChunks = chunks.slice(0,4);
+
+  // Each pair: chunk A and chunk B (same text, find by pair id)
+  memPairs = [];
+  usedChunks.forEach((c,i) => { memPairs.push({id:i,text:c}); memPairs.push({id:i,text:c}); });
+  shuffleArr(memPairs);
+  memFlipped = []; memMatched = 0; memLocked = false;
+
+  let html = `<div style="font-size:13px;font-weight:700;opacity:0.75;text-align:center;margin-bottom:8px">
+    Tap to flip and find matching pairs! 🌟 (${usedChunks.length} pairs)</div>`;
+  html += `<div class="memory-grid" id="memGrid">`;
+  memPairs.forEach((_,i) => {
+    html += `<div class="mem-card face-down" id="mc${i}" onclick="flipMemCard(${i})"></div>`;
+  });
+  html += `</div>`;
+  document.getElementById('contentArea').innerHTML = html;
+  document.getElementById('actionBtns').innerHTML = '';
+}
+
+function flipMemCard(idx) {
+  if (memLocked) return;
+  const card = document.getElementById('mc'+idx);
+  if (!card || card.classList.contains('matched') || memFlipped.find(f=>f.idx===idx)) return;
+
+  card.classList.remove('face-down');
+  card.textContent = memPairs[idx].text;
+  memFlipped.push({idx, id: memPairs[idx].id});
+
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    const [a, b] = memFlipped;
+    if (a.id === b.id) {
+      // Match!
+      playCorrectSound();
+      document.getElementById('mc'+a.idx).classList.add('matched');
+      document.getElementById('mc'+b.idx).classList.add('matched');
+      memMatched++;
+      memFlipped = [];
+      memLocked = false;
+      setSpeech(randFrom(['Match! 🎉','MashaAllah! ✨','Great memory! 🧠']));
+      if (memMatched === memPairs.length/2) {
+        awardStars(2);
+        showFeedback('correct','All matched! 🎉');
+        setSpeech("Perfect memory! You're a star! ⭐");
+        setTimeout(() => advancePhase(), 2000);
+      }
+    } else {
+      // No match
+      playWrongSound();
+      setSpeech("Not a match, try again! 👀");
+      setTimeout(() => {
+        document.getElementById('mc'+a.idx).classList.add('face-down');
+        document.getElementById('mc'+a.idx).textContent = '';
+        document.getElementById('mc'+b.idx).classList.add('face-down');
+        document.getElementById('mc'+b.idx).textContent = '';
+        memFlipped = []; memLocked = false;
+      }, 1200);
+    }
+  }
+}
+
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/* ============================================================
+   PHASE ADVANCEMENT
+   ============================================================ */
+function advancePhase() {
+  tappedChunks.clear();
+  if (state.currentPhase < 2) {
+    state.currentPhase++;
+    saveState();
+    renderStage();
+  } else {
+    completeStage();
+  }
+}
+
+function completeStage() {
+  const stage = STAGES[state.currentStage];
+  if (!state.completedStages.includes(state.currentStage)) {
+    state.completedStages.push(state.currentStage);
+    awardStars(2); // Bonus for completing stage
+    // Award badge
+    if (!state.badges.find(b => b.name === stage.badge.name)) {
+      state.badges.push(stage.badge);
+      showBadgePopup(stage.badge);
+    }
+  }
+  saveState();
+  setSpeech("Stage complete! Amazing! 🏆");
+
+  // Show completion message then move on
+  document.getElementById('contentArea').innerHTML = `
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:60px;animation:tada 0.9s ease">${stage.emoji}</div>
+      <div style="font-size:24px;font-weight:900;color:var(--gold);margin:12px 0">Stage Complete!</div>
+      <div style="font-size:17px;opacity:0.85">${randFrom(CORRECT_MSGS)}</div>
+      <div style="margin-top:12px;font-size:15px;opacity:0.7">You earned the <strong>${stage.badge.icon} ${stage.badge.name}</strong> badge!</div>
+    </div>`;
+  document.getElementById('actionBtns').innerHTML = `
+    <button class="btn btn-primary" onclick="nextStage()">Next Stage ➡️</button>`;
+
+  playCelebrationSound();
+  startConfetti(3000);
+}
+
+function nextStage() {
+  state.currentStage++;
+  state.currentPhase = 0;
+  saveState();
+  renderStage();
+}
+
+/* ============================================================
+   STAR AWARD
+   ============================================================ */
+function awardStars(n) {
+  state.stars += n;
+  document.getElementById('starCount').textContent = state.stars;
+  playStarSound();
+  saveState();
+}
+
+/* ============================================================
+   BADGE POPUP
+   ============================================================ */
+function showBadgePopup(badge) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:linear-gradient(135deg,#1a1a4e,#2d1b69);border:3px solid var(--gold);
+    border-radius:24px;padding:32px 40px;text-align:center;z-index:150;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:feedback-pop 0.5s cubic-bezier(0.34,1.56,0.64,1)`;
+  el.innerHTML = `
+    <div style="font-size:64px">${badge.icon}</div>
+    <div style="font-size:20px;font-weight:900;color:var(--gold);margin:8px 0">New Badge!</div>
+    <div style="font-size:18px;font-weight:700">${badge.name}</div>
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+/* ============================================================
+   FINAL SCREEN
+   ============================================================ */
+function showFinalScreen() {
+  showScreen('finalScreen');
+  playCelebrationSound();
+  startConfetti(8000);
+
+  // Trophy animation
+  const trophy = document.getElementById('trophyAnim');
+  trophy.style.display = 'block';
+
+  document.getElementById('finalStarCount').textContent = state.stars;
+
+  // Generate star display
+  const maxStars = STAGES.length * 5;
+  const earned = Math.min(state.stars, maxStars);
+  const pct = earned / maxStars;
+  let starStr = '';
+  for (let i=0;i<5;i++) starStr += i < Math.round(pct*5) ? '⭐' : '☆';
+  document.getElementById('certStars').textContent = starStr;
+
+  // Badges
+  const badgeRow = document.getElementById('finalBadgeRow');
+  badgeRow.innerHTML = '';
+  state.badges.forEach(b => {
+    badgeRow.innerHTML += `<div class="badge earned"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div></div>`;
+  });
+  if (state.badges.length === 0) {
+    badgeRow.innerHTML = '<div style="opacity:0.6;font-size:14px">Complete stages to earn badges! 🏅</div>';
+  }
+
+  setSpeech = () => {}; // disable
+}
+
+function printCert() { window.print(); }
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function shuffleArr(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function toggleSound() {
+  state.soundOn = !state.soundOn;
+  saveState();
+  const txt = state.soundOn ? '🔊' : '🔇';
+  document.getElementById('soundBtn').textContent = txt + (state.soundOn ? ' Sound On' : ' Muted');
+  if (document.getElementById('soundBtn2')) document.getElementById('soundBtn2').textContent = txt;
+}
+
+function toggleDark() {
+  state.darkMode = !state.darkMode;
+  document.body.classList.toggle('light-mode', state.darkMode);
+  saveState();
+  const btn = document.getElementById('darkBtn');
+  if (btn) btn.textContent = state.darkMode ? '☀️ Day' : '🌙 Night';
+}
+
+function openParentModal() {
+  document.getElementById('pm-stars').textContent = state.stars;
+  document.getElementById('pm-stages').textContent = `${state.completedStages.length} / ${STAGES.length}`;
+  document.getElementById('pm-badges').textContent = state.badges.length;
+  document.getElementById('parentModal').classList.add('open');
+}
+function closeParentModal() { document.getElementById('parentModal').classList.remove('open'); }
+
+function confirmReset() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    localStorage.removeItem('salahGame');
+    state = { currentStage:0, currentPhase:0, stars:0, badges:[], completedStages:[], soundOn:true, darkMode:false };
+    closeParentModal();
+    goHome();
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('resize', () => { resizeBg(); initParticles(); });
+
+(function init() {
+  resizeBg();
+  initParticles();
+  drawBg();
+  loadState();
+  updateHomeScreen();
+  if (state.darkMode) document.body.classList.add('light-mode');
+  if (!state.soundOn) {
+    document.getElementById('soundBtn').textContent = '🔇 Muted';
+  }
+})();
+</script>
+</body>
+</html>
